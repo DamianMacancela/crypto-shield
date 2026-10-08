@@ -1,101 +1,54 @@
-# 🔒 Crypto Shield — Herramienta de Encriptación de Archivos
+# Crypto Shield
 
-> Herramienta de línea de comandos para encriptar y desencriptar archivos
-> (documentos, PDFs, imágenes, cualquier tipo) usando criptografía
-> **AES-256-GCM** con derivación de clave segura.
+**Crypto Shield** es una utilidad de línea de comandos (CLI) escrita en Python para cifrar y descifrar archivos de forma segura. Nació como un proyecto personal para aplicar fundamentos criptográficos robustos en la práctica, sin depender de cajas negras.
 
-## 🎯 Objetivo
+Utiliza **AES-256 en modo GCM** (para garantizar tanto la confidencialidad como la integridad de los datos) y **PBKDF2-HMAC-SHA256** para derivar la clave de manera segura a partir de una contraseña.
 
-Construir una herramienta práctica que resuelva un problema real: proteger
-archivos sensibles (documentos legales, PDFs con datos personales, reportes
-confidenciales) con criptografía de grado militar, entendiendo no solo *cómo*
-funciona sino *por qué* cada decisión de diseño importa para la seguridad.
+## Características
 
-## 🧭 Contexto y alcance
+- 🔒 **Cifrado Fuerte:** AES-256-GCM.
+- 🔑 **Derivación de Claves:** PBKDF2 con 480,000 iteraciones (siguiendo las recomendaciones actuales de OWASP) y un salt único de 16 bytes por archivo.
+- 🛡️ **Integridad:** El modo GCM detecta si el archivo cifrado ha sido manipulado (Authentic Encryption).
+- 📂 **Soporte Universal:** Funciona con cualquier tipo de archivo (PDF, DOCX, JPG, ZIP).
 
-En el contexto de la **LOPDP** (Ecuador) y el **RGPD**, el cifrado es una de las
-medidas técnicas recomendadas para proteger datos personales (Art. 39 LOPDP).
-Esta herramienta demuestra cómo implementar esa protección de forma correcta,
-evitando errores comunes como:
+## Instalación
 
-- Usar algoritmos obsoletos (DES, RC4, MD5)
-- No derivar claves correctamente (contraseña directa como clave)
-- No autenticar el cifrado (AES-CBC sin HMAC)
-- Reutilizar nonces o sales
+1. Clona el repositorio:
+   ```bash
+   git clone https://github.com/DamianMacancela/crypto-shield.git
+   cd crypto-shield
+   ```
 
-## 🛠️ Decisiones de diseño y seguridad
+2. Instala las dependencias necesarias (`cryptography`):
+   ```bash
+   pip install -r requirements.txt
+   ```
+   *(Si no existe el archivo `requirements.txt`, simplemente ejecuta: `pip install cryptography`)*
 
-| Componente | Elección | Por qué |
-|---|---|---|
-| Algoritmo | **AES-256-GCM** | Cifrado autenticado (confidencialidad + integridad en una sola operación) |
-| Derivación de clave | **PBKDF2-HMAC-SHA256** | Resistente a fuerza bruta; 600,000 iteraciones (recomendación OWASP 2023) |
-| Sal | **16 bytes aleatorios** por archivo | Impide ataques de rainbow table; misma contraseña → claves distintas |
-| Nonce | **12 bytes aleatorios** por archivo | Tamaño estándar para GCM; generado con CSPRNG del sistema |
-| Verificación | Post-encriptación automática | Desencripta inmediatamente para confirmar integridad antes de entregar |
+## Uso
 
-## 🧰 Stack técnico
+La herramienta funciona directamente desde la terminal.
 
-Python · cryptography · AES-256-GCM · PBKDF2 · Argparse
-
-## ▶️ Cómo usarlo
-
-### Instalación
-
+**Para cifrar un archivo:**
 ```bash
-pip install cryptography
+python crypto_shield.py encrypt archivo_secreto.pdf
 ```
+*(Te pedirá ingresar una contraseña de forma segura. El archivo resultante será `archivo_secreto.pdf.enc` y el original se conservará).*
 
-### Encriptar un archivo
-
+**Para descifrar un archivo:**
 ```bash
-python src/crypto_shield.py encrypt documento.pdf
-# Resultado: documento.pdf.enc
+python crypto_shield.py decrypt archivo_secreto.pdf.enc
 ```
+*(Ingresa la contraseña que usaste para cifrarlo. Recuperarás `archivo_secreto.pdf`).*
 
-### Encriptar todos los archivos de una carpeta
+## ¿Por qué construí esto?
 
-```bash
-python src/crypto_shield.py encrypt carpeta_confidencial/
-```
+Más allá de ser una herramienta útil para proteger datos locales, el objetivo principal fue entender la criptografía moderna escribiendo el código desde cero. Usar `cryptography.hazmat` en Python te obliga a gestionar los vectores de inicialización (IV), los salts y los algoritmos de derivación correctamente. Es un ejercicio excelente para asentar bases en ciberseguridad.
 
-### Desencriptar
+## Advertencia de Seguridad
 
-```bash
-python src/crypto_shield.py decrypt documento.pdf.enc
-# Resultado: documento.pdf (restaurado)
-```
+Esta es una herramienta de aprendizaje y uso personal. Aunque utiliza primitivas criptográficas estándar de la industria, **no** ha sido auditada profesionalmente. Para proteger información de vida o muerte, te recomiendo siempre confiar en software como GPG, Age o VeraCrypt.
 
-### Ver información de un archivo encriptado
+## Licencia
 
-```bash
-python src/crypto_shield.py info documento.pdf.enc
-```
-
-**Salida:**
-```
-📄 Archivo: documento.pdf.enc
-🔒 Formato: Crypto Shield v1 (AES-256-GCM)
-📏 Tamaño encriptado: 145,231 bytes
-📏 Tamaño original (aprox.): 145,183 bytes
-🔑 Derivación de clave: PBKDF2-HMAC-SHA256 (600,000 iteraciones)
-```
-
-## 💡 Lecciones aprendidas
-
-- El cifrado **autenticado** (GCM) es fundamentalmente más seguro que el cifrado
-  simple (CBC) porque detecta cualquier manipulación del archivo encriptado.
-- La derivación de clave con PBKDF2 convierte una contraseña débil en una clave
-  criptográficamente fuerte, pero el número de iteraciones debe actualizarse
-  periódicamente conforme aumenta la capacidad de cómputo de los atacantes.
-- En el contexto legal (LOPDP Art. 39-42), poder demostrar que los datos estaban
-  cifrados con un estándar reconocido puede ser un atenuante en caso de brecha.
-
-## ⚠️ Disclaimer
-
-Esta herramienta es un proyecto educativo y de portafolio. Para uso en producción
-con datos críticos, se recomienda complementar con soluciones auditadas
-profesionalmente y gestión de claves empresarial (KMS).
-
-## 📄 Licencia
-
-MIT
+[MIT License](LICENSE)
