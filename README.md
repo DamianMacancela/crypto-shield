@@ -1,54 +1,39 @@
-# Crypto Shield
+crypto-shield
+=============
 
-**Crypto Shield** es una utilidad de línea de comandos (CLI) escrita en Python para cifrar y descifrar archivos de forma segura. Nació como un proyecto personal para aplicar fundamentos criptográficos robustos en la práctica, sin depender de cajas negras.
+*a CLI tool to encrypt and decrypt files using AES-256-GCM*
 
-Utiliza **AES-256 en modo GCM** (para garantizar tanto la confidencialidad como la integridad de los datos) y **PBKDF2-HMAC-SHA256** para derivar la clave de manera segura a partir de una contraseña.
+**crypto-shield** is a Python utility built to apply robust cryptographic primitives in practice. It uses `cryptography.hazmat` to handle AES-256 in Galois/Counter Mode (GCM) for authenticated encryption, and PBKDF2 for secure key derivation.
 
-## Características
+### Features
+* **AES-256-GCM:** Ensures both confidentiality and data integrity.
+* **PBKDF2-HMAC-SHA256:** Key derivation with 480,000 iterations and a unique 16-byte salt per file.
+* **File Agnostic:** Encrypts any file format (PDF, DOCX, ZIP, etc.).
 
-- 🔒 **Cifrado Fuerte:** AES-256-GCM.
-- 🔑 **Derivación de Claves:** PBKDF2 con 480,000 iteraciones (siguiendo las recomendaciones actuales de OWASP) y un salt único de 16 bytes por archivo.
-- 🛡️ **Integridad:** El modo GCM detecta si el archivo cifrado ha sido manipulado (Authentic Encryption).
-- 📂 **Soporte Universal:** Funciona con cualquier tipo de archivo (PDF, DOCX, JPG, ZIP).
+### Build / Install
 
-## Instalación
-
-1. Clona el repositorio:
-   ```bash
-   git clone https://github.com/DamianMacancela/crypto-shield.git
-   cd crypto-shield
-   ```
-
-2. Instala las dependencias necesarias (`cryptography`):
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *(Si no existe el archivo `requirements.txt`, simplemente ejecuta: `pip install cryptography`)*
-
-## Uso
-
-La herramienta funciona directamente desde la terminal.
-
-**Para cifrar un archivo:**
 ```bash
-python crypto_shield.py encrypt archivo_secreto.pdf
+git clone https://github.com/DamianMacancela/crypto-shield.git
+cd crypto-shield
+pip install -r requirements.txt
 ```
-*(Te pedirá ingresar una contraseña de forma segura. El archivo resultante será `archivo_secreto.pdf.enc` y el original se conservará).*
 
-**Para descifrar un archivo:**
+### Usage
+
+**Encrypt:**
 ```bash
-python crypto_shield.py decrypt archivo_secreto.pdf.enc
+python crypto_shield.py encrypt document.pdf
 ```
-*(Ingresa la contraseña que usaste para cifrarlo. Recuperarás `archivo_secreto.pdf`).*
+*(Outputs `document.pdf.enc` and preserves the original file).*
 
-## ¿Por qué construí esto?
+**Decrypt:**
+```bash
+python crypto_shield.py decrypt document.pdf.enc
+```
+*(Outputs the restored `document.pdf`).*
 
-Más allá de ser una herramienta útil para proteger datos locales, el objetivo principal fue entender la criptografía moderna escribiendo el código desde cero. Usar `cryptography.hazmat` en Python te obliga a gestionar los vectores de inicialización (IV), los salts y los algoritmos de derivación correctamente. Es un ejercicio excelente para asentar bases en ciberseguridad.
+### Warning
+This is a learning and personal-use tool built to understand low-level cryptographic implementation. For life-or-death operational security, use established tools like GPG or Age.
 
-## Advertencia de Seguridad
-
-Esta es una herramienta de aprendizaje y uso personal. Aunque utiliza primitivas criptográficas estándar de la industria, **no** ha sido auditada profesionalmente. Para proteger información de vida o muerte, te recomiendo siempre confiar en software como GPG, Age o VeraCrypt.
-
-## Licencia
-
-[MIT License](LICENSE)
+### License
+MIT
